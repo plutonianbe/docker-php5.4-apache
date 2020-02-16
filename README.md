@@ -55,7 +55,45 @@ $ docker build -t my-php .
 
 If you don't want to include a `Dockerfile` in your project, it is sufficient to do the following:
 
-    docker run -it --rm --name my-php-app -v "$PWD":/var/www/html plutonianbe/php54-apache:latest
+```bash
+docker run -it --rm --name my-php-app -v "$PWD":/var/www/html plutonianbe/php54-apache:latest
+```
+
+### Use image with `docker-compose`
+
+```yml
+version: "3.1"
+ services:
+
+   app:
+     image: plutonianbe/php54-apache:latest
+     depends_on:
+       - mysql
+     environment:
+       - XDEBUG_CONFIG=remote_host=${EN0IP}
+     links:
+       - mysql
+     ports:
+       - 80:80
+     restart: always
+     volumes:
+       - ./:/var/www/html
+
+   # Optional container if you are using mysql. Don't forget to change the credentials
+   mysql:
+     image: mysql:5.5
+     environment:
+       - MYSQL_ROOT_PASSWORD=root
+       - MYSQL_DATABASE=app
+       - MYSQL_USER=app
+       - MYSQL_PASSWORD=app
+     ports:
+       - 3306:3306
+     volumes:
+       - ./docker/data:/var/lib/mysql
+```
+
+If you want to use xdebug don't forget to set the env variable `EN0IP`. For example add `export EN0IP=$(ipconfig getifaddr en0)` to you `.bashrc` or `.zshrc`.
 
 # License
 
